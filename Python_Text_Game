@@ -1,0 +1,116 @@
+# Steven Stutts
+# IT140-Project 2 - TextBasedGame
+
+
+# instructions function
+def show_instructions():
+    # print a main menu and the commands
+    print("Welcome to the Spy Text Adventure Game")
+    print("Collect 6 items to win the game, or be be killed by the Double Agent")
+    print("Move commands: go North, go South, go East, go West")
+    print("Add to Inventory: get 'item name'")
+    print()
+
+
+# storyline function
+def storyline():
+    print("You are an agent working for the CIA")
+    print("You are sent on a mission to infiltrate a building from a rooftop window to capture the Double Agent")
+    print("The double agent has been selling classified documents to the highest bidder")
+    print("While in the building you will have to go through different rooms and collect six items that will allow you")
+    print("to successfully capture the double agent.")
+    print()
+    print("               Good Luck!!!              ")
+    print()
+
+
+def show_status(rooms, inventory, startRoom):
+    # print the player's current status
+    # print the current inventory
+    # print an item if there is one
+    print("You are in", startRoom)
+    print("Inventory:", inventory)
+    if rooms[startRoom]["item"]:
+        print("You see a", rooms[startRoom]["item"])
+
+
+def main():
+    # define an inventory which is initially empty
+    # A dictionary linking a room to other rooms
+    # and linking one item for each room except the Start room (Bathroom_1) and the room containing the villain
+    rooms = {
+        "Bathroom_1": {"South": "Gym", "East": "Conference Room", "item": None},  # no item in start room
+        "Office": {"East": "Gym", "item": "Gun"},
+        "Gym": {"North": "Bathroom_1", "South": "Bathroom_2", "East": "Cafeteria", "West": "Office", "item": "Gun Clip"
+                },
+        "Bathroom_2": {"North": "Gym", "East": "Maintenance Room", "item": "Handcuffs"},
+        "Maintenance Room": {"West": "Bathroom_2", "item": "Smoke Bomb"},
+        "Conference Room": {"West": "Bathroom_1", "item": "Ammunition"},
+        "Cafeteria": {"North": "Power Room", "West": "Gym", "item": "Burrito"},
+        "Power Room": {"South": "Cafeteria", "item": "Double Agent"}  # villain
+    }
+
+    # player will be starting out the game in the bathroom_1
+    startRoom = "Bathroom_1"
+    inventory = []
+
+    # called the show instructions function
+
+    show_instructions()
+
+    # called the storyline function
+    storyline()
+
+    # Loop for gameplay flow
+    while True:
+        # called show status function
+        show_status(rooms, inventory, startRoom)
+
+        command = input("Enter a command: ").split()  # Here we ask for a command
+
+        if len(command) < 2:  # checks if there is at least 2 parts to the command
+            print("Invalid Command")
+            continue
+        command[0] = command[0].lower()  
+        command[1] = command[1].capitalize()
+
+        # input validation for movement
+        if command[0] == "go" and (
+                command[1] == "North" or command[1] == "South" or command[1] == "West" or command[1] == "East"):
+            room_dict = rooms[startRoom]
+            if command[1] in room_dict:
+                startRoom = rooms[startRoom][command[1]]  # Here we update the room
+
+                # checking if you can exit the game if the player wins or losses
+                if startRoom == "Power Room":
+                    if len(inventory) == 6:
+                        print("Congratulations you have captured the Double Agent!")
+                        print("You won!  Thank you for playing.")
+                        break
+                    else:
+                        print("You were killed by the double agent!")
+                        print("You lost!  Thank you for playing.")
+                        break
+
+            else:
+                print("Can't go that way!")
+
+        # Checking to be able to get correct item from room
+        elif command[0] == "get":
+            item = rooms[startRoom]["item"]
+
+            # input validation for items in dictionary
+            if item:
+                if item not in inventory:
+                    if " ".join(command[1:]).lower() == item.lower():  # joining "get" into command to get "item"
+                        inventory.append(item)  # store acquired items in inventory
+                    else:
+                        print("Please check the item name")
+                else:
+                    print("the item is already retrieved")
+        else:
+            print("Invalid Command")
+
+
+# called the main function
+main()
